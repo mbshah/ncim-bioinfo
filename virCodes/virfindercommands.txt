@@ -1,0 +1,28 @@
+
+
+library("VirFinder")
+predResult<-VF.pred("$fasta")
+predResult[order(predResult$pvalue),]
+predResult$qvalue <- VF.qvalue(predResult$pvalue)
+predResult[order(predResult$qvalue),]
+write.table(predResult,"$virfinder_out",sep="\t",col.names=NA)
+
+ 
+viromescan.sh -1 /home/gajanan/wholemg/unk/fastq/ -2 /home/gajanan/wholemg/unk/fastq/ -d virus_ALL -p 10 -m /home/gajanan/SOFTWARES/viromescan/ -o /home/gajanan/wholemg/unk/virome_scan_out
+
+/home/gajanan/wholemg/unk/virome_scan_out//home/gajanan/wholemg/unk/virome_scan_out.sam
+
+srprism mkindex -i hg19reference.fa -o hg19reference.srprism -M 7168
+
+
+
+NCBI search string:
+"Viruses"[Organism] NOT "cellular organisms"[Organism] NOT wgs[PROP] NOT gbdiv syn[prop] AND (srcdb_refseq[PROP] OR nuccore genome samespecies[Filter])
+
+blast
+blastn -query ../../../fastq/15KS1EP.fasta -db allviruses_ncbi -outfmt '6 qseqid sseqid sacc qcovs evalue pident bitscore qstart qend sstart send length stitle qseq' -out Vir_outs/myblast_out2 -num_threads 3 -max_target_seqs 1
+
+qseqid	sseqid	sacc	qcovs	evalue	pident	bitscore	qstart	qend	sstart	send	length	stitle	qseq
+
+start 2:45 PM on 06/04/2018
+awk '/K00143:287:HM353BBXX:8:1121:12550:9913/{ print NR; exit }' input-file

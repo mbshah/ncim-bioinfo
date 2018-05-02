@@ -1,0 +1,3 @@
+External programs list:
+BLAST
+TrimGlaore
