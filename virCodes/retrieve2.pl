@@ -4,21 +4,23 @@
 #Add comments here to list changelog
 #excerpts taken from BLAST eutils manual
 
-BEGIN{$ENV{HTTPS_proxy}="http://172.16.2.37:3128";$ENV{HTTP_proxy}="http://172.16.2.37:3128"}
+#BEGIN{$ENV{HTTPS_proxy}="http://172.16.2.37:3128";$ENV{HTTP_proxy}="http://172.16.2.37:3128"}
 use strict;
 use warnings;
 use LWP::Simple;
 use List::MoreUtils qw(uniq);
 
+my $filter='yes';
 my $ddir=".";
 if (exists $ARGV[0]){
 	$ddir=$ARGV[0];
 }else{
 	print "Please enter outputfolder to be used:\n\n";
-	chomp($ddir="/home/ncim/Hot_spring_unk/codes/virCodes/test/");
+	chomp($ddir="/home/manan/NCL/test");
 	#chomp($ddir=<STDIN>);
 }
 if ($ddir!~/\/$/){$ddir=$ddir."/";}
+mkdir $ddir;
 
 use Cwd 'abs_path';
 my $code_loc=abs_path($0);
@@ -27,13 +29,14 @@ if($code_loc=~/(\/.*)(\/.*\.pl$)/){$run_loc=$1;}
 
 my $db = 'nucleotide';
 my $query = '"Viruses"[Organism]+NOT+"cellular+organisms"[Organism]+NOT+wgs[PROP]+NOT+gbdiv+syn[prop]+AND+(srcdb_refseq[PROP]+OR+nuccore+genome+samespecies[Filter])+AND+"complete+genome"[All+Fields]+AND+("3000"[SLEN]+:+"2500000"[SLEN])';
-
+#$query='"viruses"[porgn]+NOT+partial[All+Fields]+AND+("3000"[SLEN]+:+"2500000"[SLEN])';
 #Search 
 print "->Searching NCBI Using URL:";
 my $base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
 my $url = $base . "esearch.fcgi?db=$db&term=$query&usehistory=y";
 print "$url\n\n";
 my $output = get($url);
+#print $output;
 open (my $searchres,">",$ddir."searchresult.txt");
 print $searchres $output;
 close $searchres;
@@ -109,12 +112,16 @@ foreach (sort keys %virus_table){
 	my $temp=$virus_table{$_};
 	print $uniques "$_\t$temp\n\n";
 	my @orgs=split (';\s',$temp);
-	push(@toret,$orgs[0]);
+	if ($filter eq 'yes'){
+		push(@toret,$orgs[0]);
+	}else{
+		push (@toret,@orgs);
+	}
 }
 close $uniques;
 
 
-#Making and checking of the files already exist
+##Making and checking of the files already exist
 my $db_folder=$ddir."db/";
 `mkdir $db_folder`;
 opendir my $dir, $db_folder or die "Cannot open directory: $ddir $!";
@@ -124,7 +131,7 @@ my @toret2;
 foreach(@toret){
 	my $check=$_.".gb.xml";
 	if ($check~~@check){
-		#print "skipping $check\n\n";
+		print "skipping $check\n\n";
 	}else{
 		push(@toret2,$_);
 	}
