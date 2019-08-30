@@ -108,13 +108,13 @@ my @toret;
 foreach (sort keys %virus_table){
 	my $temp=$virus_table{$_};
 	print $uniques "$_\t$temp\n\n";
-	my @orgs=split (/;\s/,$temp);
+	my @orgs=split (';\s',$temp);
 	push(@toret,$orgs[0]);
 }
 close $uniques;
 
 
-##Making and checking of the files already exist
+#Making and checking of the files already exist
 my $db_folder=$ddir."db/";
 `mkdir $db_folder`;
 opendir my $dir, $db_folder or die "Cannot open directory: $ddir $!";
@@ -140,17 +140,17 @@ if ($status eq "done"){print "--->done acquiring\n\n";}else{print "--->failed\n\
 ###Creating fasta files for making blast db###
 print "->Creating FASTA files\n\n";
 my $fastafile=$ddir."av_fasta.fasta";
-#open(my $fasta,">",$fastafile);
-#close $fasta;
+open(my $fasta,">",$fastafile);
+close $fasta;
 foreach(@toret){
 	my $file=$db_folder.$_.".gb.xml";
 	my @utilsargs=($file);
-	#system("$run_loc/gb_utils_xml.pl",@utilsargs);
+	system("$run_loc/gb_utils_xml.pl",@utilsargs);
 }
 
 my $dboutfile=$ddir."blastdb/av_fasta_filtered.fasta";
 my @dbargs=($fastafile,$dboutfile);
-#system ("$run_loc/dbmaker.pl",@dbargs);
+system ("$run_loc/dbmaker.pl",@dbargs);
 
 #subroutine to retreive gb xml files from NCBI
 sub retrive_data {
